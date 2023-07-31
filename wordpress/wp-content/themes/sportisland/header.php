@@ -29,7 +29,7 @@
         ])
         ?>
         <?php
-        dynamic_sidebar('si-tell');
+          dynamic_sidebar('si-tell');
         ?>
         <button class="main-header__mobile">
           <span class="sr-only">Открыть мобильное меню</span>

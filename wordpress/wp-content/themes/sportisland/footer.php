@@ -43,17 +43,17 @@
 
           ?>
           <?php
-        dynamic_sidebar('si-tell');
-        ?>
+            dynamic_sidebar('si-tell');
+          ?>
         </div>
       </header>
       <footer class="main-footer wrapper">
         <div class="row main-footer__row">
           <div class="main-footer__widget main-footer__widget_copyright">
-            <span class="widget-text"> © 2019 Все права защищены. SportIsland </span>
+            <span class="widget-text"> <?php dynamic_sidebar('si-footer-colum-1') ?></span>
           </div>
           <div class="main-footer__widget">
-            <p class="widget-contact-mail"> Если у вас возникли вопросы, пожалуйста свяжитесь с нами по почте <a href="mailto:sportisland@gmail.ru">sportisland@gmail.ru</a>
+            <p class="widget-contact-mail"> <?php dynamic_sidebar('si-footer-colum-2') ?>
             </p>
           </div>
           <div class="main-footer__widget main-footer__widget_social">
