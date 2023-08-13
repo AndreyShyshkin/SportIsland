@@ -4,9 +4,9 @@ class SI_Widget_Contacts extends WP_Widget
 {
     public function __construct()
     {
-        parent::__construct('si_widget_contacts', 'SportIsland Widget Contacts', [
-            'name' => 'SportIsland Widget Contacts',
-            'description' => 'SportIsland Widget Contacts'
+        parent::__construct('si_widget_contacts', 'SportIsland - Виджет контактов', [
+            'name' => 'SportIsland - Виджет контактов',
+            'description' => 'Выводит номер телефона и адрес'
         ]);
     }
 
@@ -14,30 +14,35 @@ class SI_Widget_Contacts extends WP_Widget
     {
 ?>
         <p>
-            <label for="<?php echo $this->get_field_id('id-tell'); ?>">
-                Введите номер телефона
+            <label for="<?php echo $this->get_field_id('id-phone'); ?>">
+                Введите номер телефона:
             </label>
-
-            <input type="text" id="<?php echo $this->get_field_id('id-tell'); ?>" name="<?php echo $this->get_field_name('tell'); ?>" value="<?php echo $instance['tell']; ?>">
-
-            <label for="<?php echo $this->get_field_id('id-adress'); ?>">
-                Введите адрес
+            <input id="<?php echo $this->get_field_id('id-phone'); ?>" type="text" name="<?php echo $this->get_field_name('phone'); ?>" value="<?php echo $instance['phone']; ?>" class="widefat">
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('id-address'); ?>">
+                Введите адрес:
             </label>
-
-            <input type="text" id="<?php echo $this->get_field_id('id-adress'); ?>" name="<?php echo $this->get_field_name('adress'); ?>" value="<?php echo $instance['adress']; ?>">
+            <input id="<?php echo $this->get_field_id('id-address'); ?>" type="text" name="<?php echo $this->get_field_name('address'); ?>" value="<?php echo $instance['address']; ?>" class="widefat">
         </p>
     <?php
     }
 
     public function widget($args, $instance)
     {
+        $tel_text = $instance['phone'];
+        $pattern = '/[^+0-9]/';
+        $tel = preg_replace($pattern, '', $tel_text);
+
     ?>
-
         <address class="main-header__widget widget-contacts">
-            <a href="tel:<?php echo $instance['tell']; ?>" class="widget-contacts__phone"> <?php echo $instance['tell']; ?> </a>
-            <p class="widget-contacts__address"> <?php echo $instance['adress']; ?> </p>
+            <a href="tel:<?php echo $tel; ?>" class="widget-contacts__phone">
+                <?php echo $instance['phone']; ?>
+            </a>
+            <p class="widget-contacts__address">
+                <?php echo $instance['address']; ?>
+            </p>
         </address>
-
 <?php
     }
 
@@ -46,5 +51,3 @@ class SI_Widget_Contacts extends WP_Widget
         return $new_instance;
     }
 }
-
-?>
