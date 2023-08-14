@@ -21,12 +21,9 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 		function initialize() {
 
 			// vars
-			$this->name          = 'range';
-			$this->label         = __( 'Range', 'acf' );
-			$this->description   = __( 'An input for selecting a numerical value within a specified range using a range slider element.', 'acf' );
-			$this->preview_image = acf_get_url() . '/assets/images/field-type-previews/field-preview-range.png';
-			$this->doc_url       = acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/range/', 'docs', 'field-type-selection' );
-			$this->defaults      = array(
+			$this->name     = 'range';
+			$this->label    = __( 'Range', 'acf' );
+			$this->defaults = array(
 				'default_value' => '',
 				'min'           => '',
 				'max'           => '',
@@ -158,6 +155,8 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 		*/
 
 		function render_field_settings( $field ) {
+
+			// default_value
 			acf_render_field_setting(
 				$field,
 				array(
@@ -167,17 +166,8 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 					'name'         => 'default_value',
 				)
 			);
-		}
 
-		/**
-		 * Renders the field settings used in the "Validation" tab.
-		 *
-		 * @since 6.0
-		 *
-		 * @param array $field The field settings array.
-		 * @return void
-		 */
-		function render_field_validation_settings( $field ) {
+			// min
 			acf_render_field_setting(
 				$field,
 				array(
@@ -189,6 +179,7 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 				)
 			);
 
+			// max
 			acf_render_field_setting(
 				$field,
 				array(
@@ -199,18 +190,8 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 					'placeholder'  => '100',
 				)
 			);
-		}
 
-		/**
-		 * Renders the field settings used in the "Presentation" tab.
-		 *
-		 * @since 6.0
-		 *
-		 * @param array $field The field settings array.
-		 * @return void
-		 */
-		function render_field_presentation_settings( $field ) {
-
+			// step
 			acf_render_field_setting(
 				$field,
 				array(
@@ -222,6 +203,7 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 				)
 			);
 
+			// prepend
 			acf_render_field_setting(
 				$field,
 				array(
@@ -232,6 +214,7 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 				)
 			);
 
+			// append
 			acf_render_field_setting(
 				$field,
 				array(
@@ -241,39 +224,7 @@ if ( ! class_exists( 'acf_field_range' ) ) :
 					'name'         => 'append',
 				)
 			);
-		}
 
-		/**
-		 * Return the schema array for the REST API.
-		 *
-		 * @param array $field
-		 * @return array
-		 */
-		public function get_rest_schema( array $field ) {
-			$schema = array(
-				'type'     => array( 'number', 'null' ),
-				'required' => ! empty( $field['required'] ),
-				'minimum'  => empty( $field['min'] ) ? 0 : (int) $field['min'],
-				'maximum'  => empty( $field['max'] ) ? 100 : (int) $field['max'],
-			);
-
-			if ( isset( $field['default_value'] ) && is_numeric( $field['default_value'] ) ) {
-				$schema['default'] = (int) $field['default_value'];
-			}
-
-			return $schema;
-		}
-
-		/**
-		 * Apply basic formatting to prepare the value for default REST output.
-		 *
-		 * @param mixed      $value
-		 * @param string|int $post_id
-		 * @param array      $field
-		 * @return mixed
-		 */
-		public function format_value_for_rest( $value, $post_id, array $field ) {
-			return acf_format_numerics( $value );
 		}
 
 

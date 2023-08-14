@@ -1,20 +1,18 @@
 <?php
-/**
- * Brevo (formerly Sendinblue) module main file
- *
- * @link https://contactform7.com/sendinblue-integration/
- */
 
-wpcf7_include_module_file( 'sendinblue/service.php' );
-wpcf7_include_module_file( 'sendinblue/contact-form-properties.php' );
-wpcf7_include_module_file( 'sendinblue/doi.php' );
+include_once path_join(
+	WPCF7_PLUGIN_MODULES_DIR,
+	'sendinblue/service.php'
+);
+
+include_once path_join(
+	WPCF7_PLUGIN_MODULES_DIR,
+	'sendinblue/contact-form-properties.php'
+);
 
 
-add_action( 'wpcf7_init', 'wpcf7_sendinblue_register_service', 10, 0 );
+add_action( 'wpcf7_init', 'wpcf7_sendinblue_register_service', 1, 0 );
 
-/**
- * Registers the Sendinblue service.
- */
 function wpcf7_sendinblue_register_service() {
 	$integration = WPCF7_Integration::get_instance();
 
@@ -26,10 +24,6 @@ function wpcf7_sendinblue_register_service() {
 
 add_action( 'wpcf7_submit', 'wpcf7_sendinblue_submit', 10, 2 );
 
-/**
- * Callback to the wpcf7_submit action hook. Creates a contact
- * based on the submission.
- */
 function wpcf7_sendinblue_submit( $contact_form, $result ) {
 	if ( $contact_form->in_demo_mode() ) {
 		return;
@@ -82,91 +76,42 @@ function wpcf7_sendinblue_submit( $contact_form, $result ) {
 
 	$attributes = wpcf7_sendinblue_collect_parameters();
 
-	$params = array(
-		'contact' => array(),
-		'email' => array(),
-	);
-
-	if ( ! empty( $attributes['EMAIL'] ) or ! empty( $attributes['SMS'] ) ) {
-		$params['contact'] = apply_filters(
-			'wpcf7_sendinblue_contact_parameters',
-			array(
-				'email' => $attributes['EMAIL'],
-				'attributes' => (object) $attributes,
-				'listIds' => (array) $prop['contact_lists'],
-				'updateEnabled' => false,
-			)
-		);
+	if ( empty( $attributes['EMAIL'] ) and empty( $attributes['SMS'] ) ) {
+		return;
 	}
 
-	if ( $prop['enable_transactional_email'] and $prop['email_template'] ) {
-		$first_name = isset( $attributes['FIRSTNAME'] )
-			? trim( $attributes['FIRSTNAME'] )
-			: '';
+	$contact_id = $service->create_contact( array(
+		'email' => $attributes['EMAIL'],
+		'attributes' => (object) $attributes,
+		'listIds' => (array) $prop['contact_lists'],
+	) );
 
-		$last_name = isset( $attributes['LASTNAME'] )
-			? trim( $attributes['LASTNAME'] )
-			: '';
+	if ( ! $contact_id ) {
+		return;
+	}
 
-		if ( $first_name or $last_name ) {
-			$email_to_name = sprintf(
-				/* translators: 1: first name, 2: last name */
-				_x( '%1$s %2$s', 'personal name', 'contact-form-7' ),
-				$first_name,
-				$last_name
-			);
-		} else {
-			$email_to_name = '';
-		}
+	if ( ! $prop['enable_transactional_email'] or ! $prop['email_template'] ) {
+		return;
+	}
 
-		$params['email'] = apply_filters(
-			'wpcf7_sendinblue_email_parameters',
+	$service->send_email( array(
+		'templateId' => absint( $prop['email_template'] ),
+		'to' => array(
 			array(
-				'templateId' => absint( $prop['email_template'] ),
-				'to' => array(
-					array(
-						'name' => $email_to_name,
-						'email' => $attributes['EMAIL'],
-					),
+				'name' => sprintf(
+					'%1$s %2$s',
+					$attributes['FIRSTNAME'],
+					$attributes['LASTNAME']
 				),
-				'params' => (object) $attributes,
-				'tags' => array( 'Contact Form 7' ),
-			)
-		);
-	}
-
-	if ( is_email( $attributes['EMAIL'] ) ) {
-		$token = null;
-
-		do_action_ref_array( 'wpcf7_doi', array(
-			'wpcf7_sendinblue',
-			array(
-				'email_to' => $attributes['EMAIL'],
-				'properties' => $params,
+				'email' => $attributes['EMAIL'],
 			),
-			&$token,
-		) );
-
-		if ( isset( $token ) ) {
-			return;
-		}
-	}
-
-	if ( ! empty( $params['contact'] ) ) {
-		$contact_id = $service->create_contact( $params['contact'] );
-
-		if ( $contact_id and ! empty( $params['email'] ) ) {
-			$service->send_email( $params['email'] );
-		}
-	}
+		),
+		'params' => (object) $attributes,
+		'tags' => array( 'Contact Form 7' ),
+	) );
 }
 
 
-/**
- * Collects parameters for Sendinblue contact data based on submission.
- *
- * @return array Sendinblue contact parameters.
- */
 function wpcf7_sendinblue_collect_parameters() {
 	$params = array();
 

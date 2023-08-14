@@ -8,27 +8,27 @@
  *
  * This file contains the following configurations:
  *
- * * Database settings
+ * * MySQL settings
  * * Secret keys
  * * Database table prefix
  * * ABSPATH
  *
- * @link https://wordpress.org/documentation/article/editing-wp-config-php/
+ * @link https://wordpress.org/support/article/editing-wp-config-php/
  *
  * @package WordPress
  */
 
-// ** Database settings - You can get this info from your web host ** //
+// ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'wp_sport' );
+define( 'DB_NAME', 'sportisland' );
 
-/** Database username */
+/** MySQL database username */
 define( 'DB_USER', 'root' );
 
-/** Database password */
+/** MySQL database password */
 define( 'DB_PASSWORD', '' );
 
-/** Database hostname */
+/** MySQL hostname */
 define( 'DB_HOST', 'localhost' );
 
 /** Database charset to use in creating database tables. */
@@ -48,14 +48,14 @@ define( 'DB_COLLATE', '' );
  *
  * @since 2.6.0
  */
-define( 'AUTH_KEY',         'shu 6,Obyl*D6fB%=&Fw3TlM%=YNR=yq=zmq-MHv?b_,1&HcH*nVF%K0hUKK(/uc' );
-define( 'SECURE_AUTH_KEY',  '</y#[-dm-*vDC}Gx`)` cjzV`] dO;B~:e97SW5{>>R6uF[fJuQTG:-Zn?Kr-(K>' );
-define( 'LOGGED_IN_KEY',    ',D_9E}2x6P>vKb@#%7%CR{RK1]b5Jz!I8ZDLM<0Vk0K/!~`B-JCHNx~0619l*fpL' );
-define( 'NONCE_KEY',        '#|_mh1^Wpa1m>O>y_z_^i o{e{/O4$(wWd*g^]4J]L[=,]uXV%P6Z5lXcUH=z9nM' );
-define( 'AUTH_SALT',        'QjE /FECL)ov%!Wy#,#H;@}w*t0I)dq5X7OPa{wiMS.v t,OiuQU$?3qnGi*7muP' );
-define( 'SECURE_AUTH_SALT', 'yD]WqFlnx@CG5GT).g]v5]s[N3PRYiztY]O=ya&PrVb)q9$,ew:6?;E1.hAce&wW' );
-define( 'LOGGED_IN_SALT',   'RH~:20ag,n(o|)FIC|aaOT}1iaFxPP!jhm&[*nozSz9Q6G(aun>VbL,{|k4cjSHd' );
-define( 'NONCE_SALT',       'd|vz6YYg<aqafU^v)mgqpke6FD=mv#KqX*Gh#zymXx`4A}rwQ,~7zRzr>>>!?0uG' );
+define( 'AUTH_KEY',         '$-v5$R$)XVDYt*8wQO^+@2dqIOhdRFNI}n+W1zF%nFzB5Z:bC4zLvfL)m/FMYM|h' );
+define( 'SECURE_AUTH_KEY',  ';MSS9lQrc@|6Z$K[mq+QN+Bjk!n7Ft28hAA,93-=lM}}/_zq`z^5:o&3>Y_BPnv-' );
+define( 'LOGGED_IN_KEY',    '/y>ACJL (Kf1Ie~*Z=%.rdFv Z^(RL*BeQ|(e+|k(t#)eIn;aX0nqo[ux;CN#naO' );
+define( 'NONCE_KEY',        '/Xk[UG#[YfC&RJI. ?Wu,JSaV0h*P~kKT|+m ^?W()42(sMpn|N:GEFp2ep__t~`' );
+define( 'AUTH_SALT',        'ei<.S{=SeqCmw0N,Emh)ek+I^pbEl2ZzBe%<vY:>QX}<B+OD@4r,kRgOj/XzboQo' );
+define( 'SECURE_AUTH_SALT', '8:nMTV,_B@KKdAM1JNVb*^p80QdSn#PXW*9u.w1.STm!@7,(]m4SC-(R);n)z5V;' );
+define( 'LOGGED_IN_SALT',   ')IWOqc3%[wSHdzWGD{Wkcky%oKrqhh>A)5z*!n(i8UPZ*R6UZ}I7Y4j5s:Q||dU/' );
+define( 'NONCE_SALT',       'tE/Up=SDqS}7 (QHFUSHZi_M(4okPsC<geS$is&~{k~;o`<M!0`CT]g8O /5}!FB' );
 
 /**#@-*/
 
@@ -65,7 +65,7 @@ define( 'NONCE_SALT',       'd|vz6YYg<aqafU^v)mgqpke6FD=mv#KqX*Gh#zymXx`4A}rwQ,~
  * You can have multiple installations in one database if you give each
  * a unique prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix = 'sport_';
+$table_prefix = 'wp_';
 
 /**
  * For developers: WordPress debugging mode.
@@ -77,7 +77,7 @@ $table_prefix = 'sport_';
  * For information on other constants that can be used for debugging,
  * visit the documentation.
  *
- * @link https://wordpress.org/documentation/article/debugging-in-wordpress/
+ * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
 define( 'WP_DEBUG', false );
 

@@ -102,7 +102,8 @@ if ( $post ) :
 		'id' => 'title',
 		'spellcheck' => 'true',
 		'autocomplete' => 'off',
-		'disabled' => ! current_user_can( 'wpcf7_edit_contact_form', $post_id ),
+		'disabled' =>
+			current_user_can( 'wpcf7_edit_contact_form', $post_id ) ? '' : 'disabled',
 	);
 
 	echo sprintf( '<input %s />', wpcf7_format_atts( $posttitle_atts ) );
@@ -246,13 +247,7 @@ if ( $post ) :
 			),
 		);
 
-		$additional_settings = $post->prop( 'additional_settings' );
-
-		if ( ! is_scalar( $additional_settings ) ) {
-			$additional_settings = '';
-		}
-
-		$additional_settings = trim( $additional_settings );
+		$additional_settings = trim( $post->prop( 'additional_settings' ) );
 		$additional_settings = explode( "\n", $additional_settings );
 		$additional_settings = array_filter( $additional_settings );
 		$additional_settings = count( $additional_settings );

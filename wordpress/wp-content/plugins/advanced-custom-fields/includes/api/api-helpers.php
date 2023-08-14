@@ -124,15 +124,6 @@ function acf_get_setting( $name, $value = null ) {
 	return $value;
 }
 
-/**
- * Return an array of ACF's internal post type names
- *
- * @since 6.1
- * @return array An array of ACF's internal post type names
- */
-function acf_get_internal_post_types() {
-	return array( 'acf-field-group', 'acf-post-type', 'acf-taxonomy' );
-}
 
 /*
 *  acf_append_setting
@@ -153,7 +144,7 @@ function acf_append_setting( $name, $value ) {
 	// vars
 	$setting = acf_raw_setting( $name );
 
-	// bail early if not array
+	// bail ealry if not array
 	if ( ! is_array( $setting ) ) {
 		$setting = array();
 	}
@@ -428,29 +419,37 @@ function acf_parse_type( $v ) {
 }
 
 
-/**
- *  This function will load in a file from the 'admin/views' folder and allow variables to be passed through
- *
- *  @date    28/09/13
- *  @since   5.0.0
- *
- *  @param string $view_path
- *  @param array  $view_args
- *
- *  @return void
- */
-function acf_get_view( $view_path = '', $view_args = array() ) {
+/*
+*  acf_get_view
+*
+*  This function will load in a file from the 'admin/views' folder and allow variables to be passed through
+*
+*  @type    function
+*  @date    28/09/13
+*  @since   5.0.0
+*
+*  @param   $view_name (string)
+*  @param   $args (array)
+*  @return  n/a
+*/
+
+function acf_get_view( $path = '', $args = array() ) {
+
 	// allow view file name shortcut
-	if ( substr( $view_path, -4 ) !== '.php' ) {
-		$view_path = acf_get_path( "includes/admin/views/{$view_path}.php" );
+	if ( substr( $path, -4 ) !== '.php' ) {
+
+		$path = acf_get_path( "includes/admin/views/{$path}.php" );
+
 	}
 
 	// include
-	if ( file_exists( $view_path ) ) {
-		// Use `EXTR_SKIP` here to prevent `$view_path` from being accidentally/maliciously overridden.
-		extract( $view_args, EXTR_SKIP );
-		include $view_path;
+	if ( file_exists( $path ) ) {
+
+		extract( $args );
+		include $path;
+
 	}
+
 }
 
 
@@ -469,7 +468,7 @@ function acf_get_view( $view_path = '', $view_args = array() ) {
 
 function acf_merge_atts( $atts, $extra = array() ) {
 
-	// bail early if no $extra
+	// bail ealry if no $extra
 	if ( empty( $extra ) ) {
 		return $atts;
 	}
@@ -612,43 +611,53 @@ function acf_get_sub_array( $array, $keys ) {
 
 
 /**
+ *  acf_get_post_types
+ *
  *  Returns an array of post type names.
  *
  *  @date    7/10/13
  *  @since   5.0.0
  *
- *  @param array $args Optional. An array of key => value arguments to match against the post type objects. Default empty array.
- *  @return array A list of post type names.
+ *  @param   array $args Optional. An array of key => value arguments to match against the post type objects. Default empty array.
+ *  @return  array A list of post type names.
  */
+
 function acf_get_post_types( $args = array() ) {
+
+	// vars
 	$post_types = array();
 
 	// extract special arg
 	$exclude   = acf_extract_var( $args, 'exclude', array() );
 	$exclude[] = 'acf-field';
 	$exclude[] = 'acf-field-group';
-	$exclude[] = 'acf-post-type';
-	$exclude[] = 'acf-taxonomy';
 
-	// Get post type objects.
+	// get post type objects
 	$objects = get_post_types( $args, 'objects' );
 
+	// loop
 	foreach ( $objects as $i => $object ) {
-		// Bail early if is exclude.
+
+		// bail early if is exclude
 		if ( in_array( $i, $exclude ) ) {
 			continue;
 		}
 
-		// Bail early if is builtin (WP) private post type
-		// i.e. nav_menu_item, revision, customize_changeset, etc.
+		// bail early if is builtin (WP) private post type
+		// - nav_menu_item, revision, customize_changeset, etc
 		if ( $object->_builtin && ! $object->public ) {
 			continue;
 		}
 
+		// append
 		$post_types[] = $i;
 	}
 
-	return apply_filters( 'acf/get_post_types', $post_types, $args );
+	// filter
+	$post_types = apply_filters( 'acf/get_post_types', $post_types, $args );
+
+	// return
+	return $post_types;
 }
 
 function acf_get_pretty_post_types( $post_types = array() ) {
@@ -701,70 +710,7 @@ function acf_get_pretty_post_types( $post_types = array() ) {
 
 }
 
-/**
- *  Function acf_get_post_stati()
- *
- *  Returns an array of post status names.
- *
- *  @date    01/24/23
- *  @since   6.1.0
- *
- *  @param   array $args Optional. An array of key => value arguments to match against the post status objects. Default empty array.
- *  @return  array A list of post status names.
- */
-function acf_get_post_stati( $args = array() ) {
 
-	$args['internal'] = false;
-
-	$post_statuses = get_post_stati( $args );
-
-	unset( $post_statuses['acf-disabled'] );
-
-	$post_statuses = (array) apply_filters( 'acf/get_post_stati', $post_statuses, $args );
-
-	return $post_statuses;
-}
-/**
- *  Function acf_get_pretty_post_statuses()
- *
- *  Returns a clean array of post status names.
- *
- *  @date    02/16/23
- *  @since   6.1.0
- *
- *  @param   array $post_statuses Optional. An array of post status objects. Default empty array.
- *  @return  array An array of post status names.
- */
-function acf_get_pretty_post_statuses( $post_statuses = array() ) {
-
-	// Get all post statuses.
-	$post_statuses = array_merge( $post_statuses, acf_get_post_stati() );
-
-	$ref    = array();
-	$result = array();
-
-	foreach ( $post_statuses as $post_status ) {
-		$label = acf_get_post_status_label( $post_status );
-
-		$result[ $post_status ] = $label;
-
-		if ( ! isset( $ref[ $label ] ) ) {
-			$ref[ $label ] = 0;
-		}
-
-		$ref[ $label ]++;
-	}
-
-	foreach ( array_keys( $result ) as $i ) {
-		$post_status = $result[ $i ];
-
-		if ( $ref[ $post_status ] > 1 ) {
-			$result[ $i ] .= ' (' . $i . ')';
-		}
-	}
-
-	return $result;
-}
 
 /*
 *  acf_get_post_type_label
@@ -796,27 +742,6 @@ function acf_get_post_type_label( $post_type ) {
 	// return
 	return $label;
 
-}
-
-
-/**
- *  Function acf_get_post_status_label()
- *
- *  This function will return a pretty label for a specific post_status
- *
- *  @type    function
- *  @date    01/24/2023
- *  @since   6.1.0
- *
- *  @param   string $post_status The post status.
- *  @return  string The post status label.
- */
-function acf_get_post_status_label( $post_status ) {
-	$label = $post_status;
-	$obj   = get_post_status_object( $post_status );
-	$label = is_object( $obj ) ? $obj->label : '';
-
-	return $label;
 }
 
 
@@ -868,8 +793,11 @@ function acf_verify_nonce( $value ) {
 
 function acf_verify_ajax() {
 
+	// vars
+	$nonce = isset( $_REQUEST['nonce'] ) ? $_REQUEST['nonce'] : '';
+
 	// bail early if not acf nonce
-	if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['nonce'] ), 'acf_nonce' ) ) {
+	if ( ! $nonce || ! wp_verify_nonce( $nonce, 'acf_nonce' ) ) {
 		return false;
 	}
 
@@ -1395,25 +1323,12 @@ function acf_get_posts( $args = array() ) {
 		$args['post_type'] = acf_get_post_types();
 	}
 
-	if ( ! $args['post_status'] ) {
-		$args['post_status'] = acf_get_post_stati();
-	}
-
 	// Check if specifc post ID's have been provided.
 	if ( $args['post__in'] ) {
 
 		// Clean value into an array of IDs.
 		$args['post__in'] = array_map( 'intval', acf_array( $args['post__in'] ) );
 	}
-
-	/**
-	 * Filters the args used in `acf_get_posts()` that are passed to `get_posts()`.
-	 *
-	 * @since 6.1.7
-	 *
-	 * @param array $args The args passed to `get_posts()`.
-	 */
-	$args = apply_filters( 'acf/acf_get_posts/args', $args );
 
 	// Query posts.
 	$posts = get_posts( $args );
@@ -1430,15 +1345,8 @@ function acf_get_posts( $args = array() ) {
 		array_multisort( $order, $posts );
 	}
 
-
-	/**
-	 * Filters the results found in the `acf_get_posts()` function.
-	 *
-	 * @since 6.1.7
-	 *
-	 * @param array $posts The results from the `get_posts()` call.
-	 */
-	return apply_filters( 'acf/acf_get_posts/results', $posts );
+	// Return posts.
+	return $posts;
 }
 
 
@@ -1461,7 +1369,7 @@ function _acf_query_remove_post_type( $sql ) {
 	// global
 	global $wpdb;
 
-	// bail early if no 'wp_posts.ID IN'
+	// bail ealry if no 'wp_posts.ID IN'
 	if ( strpos( $sql, "$wpdb->posts.ID IN" ) === false ) {
 
 		return $sql;
@@ -1915,7 +1823,7 @@ function acf_get_grouped_users( $args = array() ) {
 		// populate $this_posts
 		foreach ( array_keys( $users ) as $key ) {
 
-			// bail early if not correct role
+			// bail ealry if not correct role
 			if ( ! in_array( $user_role_name, $users[ $key ]->roles ) ) {
 				continue;
 			}
@@ -1926,7 +1834,7 @@ function acf_get_grouped_users( $args = array() ) {
 			// increase
 			$i++;
 
-			// bail early if too low
+			// bail ealry if too low
 			if ( $min && $i < $min ) {
 				continue;
 			}
@@ -2776,7 +2684,7 @@ acf_log( acf_get_post_id_info('options') );
 
 function acf_isset_termmeta( $taxonomy = '' ) {
 
-	// bail early if no table
+	// bail ealry if no table
 	if ( get_option( 'db_version' ) < 34370 ) {
 		return false;
 	}
@@ -2791,18 +2699,37 @@ function acf_isset_termmeta( $taxonomy = '' ) {
 
 }
 
-/**
- * This function will walk through the $_FILES data and upload each found.
- *
- * @date    25/10/2014
- * @since   5.0.9
- *
- * @param array $ancestors An internal parameter, not required.
- * @return void
- */
+
+/*
+*  acf_upload_files
+*
+*  This function will walk througfh the $_FILES data and upload each found
+*
+*  @type    function
+*  @date    25/10/2014
+*  @since   5.0.9
+*
+*  @param   $ancestors (array) an internal parameter, not required
+*  @return  n/a
+*/
+
 function acf_upload_files( $ancestors = array() ) {
 
-	$file = acf_sanitize_files_array( $_FILES['acf'] );
+	// vars
+	$file = array(
+		'name'     => '',
+		'type'     => '',
+		'tmp_name' => '',
+		'error'    => '',
+		'size'     => '',
+	);
+
+	// populate with $_FILES data
+	foreach ( array_keys( $file ) as $k ) {
+
+		$file[ $k ] = $_FILES['acf'][ $k ];
+
+	}
 
 	// walk through ancestors
 	if ( ! empty( $ancestors ) ) {
@@ -2832,20 +2759,15 @@ function acf_upload_files( $ancestors = array() ) {
 
 	}
 
-	// Bail early if file has error (no file uploaded).
+	// bail ealry if file has error (no file uploaded)
 	if ( $file['error'] ) {
+
 		return;
+
 	}
 
-	$field_key  = end( $ancestors );
-	$nonce_name = $field_key . '_file_nonce';
-
-	if ( empty( $_REQUEST['acf'][ $nonce_name ] ) || ! wp_verify_nonce( sanitize_text_field( $_REQUEST['acf'][ $nonce_name ] ), 'acf/file_uploader_nonce/' . $field_key ) ) {
-		return;
-	}
-
-	// Assign global _acfuploader for media validation.
-	$_POST['_acfuploader'] = $field_key;
+	// assign global _acfuploader for media validation
+	$_POST['_acfuploader'] = end( $ancestors );
 
 	// file found!
 	$attachment_id = acf_upload_file( $file );
@@ -2855,6 +2777,7 @@ function acf_upload_files( $ancestors = array() ) {
 	acf_update_nested_array( $_POST, $ancestors, $attachment_id );
 
 }
+
 
 /*
 *  acf_upload_file
@@ -2883,7 +2806,7 @@ function acf_upload_file( $uploaded_file ) {
 	// upload
 	$file = wp_handle_upload( $uploaded_file, $upload_overrides );
 
-	// bail early if upload failed
+	// bail ealry if upload failed
 	if ( isset( $file['error'] ) ) {
 
 		return $file['error'];
@@ -3021,13 +2944,13 @@ function acf_maybe_get( $array = array(), $key = 0, $default = null ) {
 
 function acf_maybe_get_POST( $key = '', $default = null ) {
 
-	return isset( $_POST[ $key ] ) ? acf_sanitize_request_args( $_POST[ $key ] ) : $default; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.NonceVerification.Missing -- Checked elsewhere.
+	return isset( $_POST[ $key ] ) ? $_POST[ $key ] : $default;
 
 }
 
 function acf_maybe_get_GET( $key = '', $default = null ) {
 
-	return isset( $_GET[ $key ] ) ? acf_sanitize_request_args( $_GET[ $key ] ) : $default; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checked elsewhere.
+	return isset( $_GET[ $key ] ) ? $_GET[ $key ] : $default;
 
 }
 
@@ -3156,29 +3079,39 @@ function acf_get_attachment( $attachment ) {
 }
 
 
-/**
- *  This function will truncate and return a string
- *
- *  @date    8/08/2014
- *  @since   5.0.0
- *
- *  @param string $text   The text to truncate.
- *  @param int    $length The number of characters to allow in the string.
- *
- *  @return  string
- */
+/*
+*  acf_get_truncated
+*
+*  This function will truncate and return a string
+*
+*  @type    function
+*  @date    8/08/2014
+*  @since   5.0.0
+*
+*  @param   $text (string)
+*  @param   $length (int)
+*  @return  (string)
+*/
+
 function acf_get_truncated( $text, $length = 64 ) {
+
+	// vars
 	$text       = trim( $text );
-	$the_length = function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text );
+	$the_length = strlen( $text );
 
-	$cut_length = $length - 3;
-	$return     = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, $cut_length ) : substr( $text, 0, $cut_length );
+	// cut
+	$return = substr( $text, 0, ( $length - 3 ) );
 
-	if ( $the_length > $cut_length ) {
+	// ...
+	if ( $the_length > ( $length - 3 ) ) {
+
 		$return .= '...';
+
 	}
 
+	// return
 	return $return;
+
 }
 
 /*
@@ -3575,7 +3508,7 @@ function acf_translate_keys( $array, $keys ) {
 	// translate
 	foreach( $keys as $k ) {
 
-		// bail early if not exists
+		// bail ealry if not exists
 		if( !isset($array[ $k ]) ) continue;
 
 
@@ -3845,7 +3778,7 @@ function acf_get_browser() {
 
 	// Check server var.
 	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
-		$agent = sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] );
+		$agent = $_SERVER['HTTP_USER_AGENT'];
 
 		// Loop over search terms.
 		$browsers = array(
@@ -3893,10 +3826,9 @@ function acf_is_ajax( $action = '' ) {
 
 	}
 
-	// phpcs:disable WordPress.Security.NonceVerification.Missing
 	// check $action
 	if ( $action && acf_maybe_get( $_POST, 'action' ) !== $action ) {
-	// phpcs:enable WordPress.Security.NonceVerification.Missing
+
 		$is_ajax = false;
 
 	}
@@ -4185,7 +4117,7 @@ function acf_send_ajax_results( $response ) {
 
 function acf_is_sequential_array( $array ) {
 
-	// bail early if not array
+	// bail ealry if not array
 	if ( ! is_array( $array ) ) {
 		return false;
 	}
@@ -4193,7 +4125,7 @@ function acf_is_sequential_array( $array ) {
 	// loop
 	foreach ( $array as $key => $value ) {
 
-		// bail early if is string
+		// bail ealry if is string
 		if ( is_string( $key ) ) {
 			return false;
 		}
@@ -4221,7 +4153,7 @@ function acf_is_sequential_array( $array ) {
 
 function acf_is_associative_array( $array ) {
 
-	// bail early if not array
+	// bail ealry if not array
 	if ( ! is_array( $array ) ) {
 		return false;
 	}
@@ -4229,7 +4161,7 @@ function acf_is_associative_array( $array ) {
 	// loop
 	foreach ( $array as $key => $value ) {
 
-		// bail early if is string
+		// bail ealry if is string
 		if ( is_string( $key ) ) {
 			return true;
 		}
@@ -4314,7 +4246,7 @@ function acf_remove_array_key_prefix( $array, $prefix ) {
 *  acf_strip_protocol
 *
 *  This function will remove the proticol from a url
-*  Used to allow licenses to remain active if a site is switched to https
+*  Used to allow licences to remain active if a site is switched to https
 *
 *  @type    function
 *  @date    10/01/2017
@@ -4350,12 +4282,12 @@ function acf_strip_protocol( $url ) {
 */
 function acf_connect_attachment_to_post( $attachment_id = 0, $post_id = 0 ) {
 
-	// bail early if $attachment_id is not valid.
+	// Bail ealry if $attachment_id is not valid.
 	if ( ! $attachment_id || ! is_numeric( $attachment_id ) ) {
 		return false;
 	}
 
-	// bail early if $post_id is not valid.
+	// Bail ealry if $post_id is not valid.
 	if ( ! $post_id || ! is_numeric( $post_id ) ) {
 		return false;
 	}
@@ -4414,7 +4346,7 @@ function acf_connect_attachment_to_post( $attachment_id = 0, $post_id = 0 ) {
 
 function acf_encrypt( $data = '' ) {
 
-	// bail early if no encrypt function
+	// bail ealry if no encrypt function
 	if ( ! function_exists( 'openssl_encrypt' ) ) {
 		return base64_encode( $data );
 	}
@@ -4450,7 +4382,7 @@ function acf_encrypt( $data = '' ) {
 
 function acf_decrypt( $data = '' ) {
 
-	// bail early if no decrypt function
+	// bail ealry if no decrypt function
 	if ( ! function_exists( 'openssl_decrypt' ) ) {
 		return base64_decode( $data );
 	}
@@ -4662,15 +4594,4 @@ function acf_is_block_editor() {
 		}
 	}
 	return false;
-}
-
-/**
- * Return an array of the WordPress reserved terms
- *
- * @since 6.1
- *
- * @return array The WordPress reserved terms list.
- */
-function acf_get_wp_reserved_terms() {
-	return array( 'action', 'attachment', 'attachment_id', 'author', 'author_name', 'calendar', 'cat', 'category', 'category__and', 'category__in', 'category__not_in', 'category_name', 'comments_per_page', 'comments_popup', 'custom', 'customize_messenger_channel', 'customized', 'cpage', 'day', 'debug', 'embed', 'error', 'exact', 'feed', 'fields', 'hour', 'link_category', 'm', 'minute', 'monthnum', 'more', 'name', 'nav_menu', 'nonce', 'nopaging', 'offset', 'order', 'orderby', 'p', 'page', 'page_id', 'paged', 'pagename', 'pb', 'perm', 'post', 'post__in', 'post__not_in', 'post_format', 'post_mime_type', 'post_status', 'post_tag', 'post_type', 'posts', 'posts_per_archive_page', 'posts_per_page', 'preview', 'robots', 's', 'search', 'second', 'sentence', 'showposts', 'static', 'status', 'subpost', 'subpost_id', 'tag', 'tag__and', 'tag__in', 'tag__not_in', 'tag_id', 'tag_slug__and', 'tag_slug__in', 'taxonomy', 'tb', 'term', 'terms', 'theme', 'title', 'type', 'types', 'w', 'withcomments', 'withoutcomments', 'year' );
 }

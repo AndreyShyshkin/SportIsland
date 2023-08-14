@@ -22,10 +22,10 @@ class WPCF7_ContactFormTemplate {
 		$template = sprintf(
 			'
 <label> %2$s
-    [text* your-name autocomplete:name] </label>
+    [text* your-name] </label>
 
 <label> %3$s
-    [email* your-email autocomplete:email] </label>
+    [email* your-email] </label>
 
 <label> %4$s
     [text* your-subject] </label>
@@ -60,9 +60,9 @@ class WPCF7_ContactFormTemplate {
 			),
 			'body' =>
 				sprintf(
-					/* translators: %s: [your-name] [your-email] */
+					/* translators: %s: [your-name] <[your-email]> */
 					__( 'From: %s', 'contact-form-7' ),
-					'[your-name] [your-email]'
+					'[your-name] <[your-email]>'
 				) . "\n"
 				. sprintf(
 					/* translators: %s: [your-subject] */
@@ -127,19 +127,17 @@ class WPCF7_ContactFormTemplate {
 
 	public static function from_email() {
 		$admin_email = get_option( 'admin_email' );
+		$sitename = strtolower( $_SERVER['SERVER_NAME'] );
 
 		if ( wpcf7_is_localhost() ) {
 			return $admin_email;
 		}
 
-		$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
-		$sitename = strtolower( $sitename );
-
-		if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+		if ( substr( $sitename, 0, 4 ) == 'www.' ) {
 			$sitename = substr( $sitename, 4 );
 		}
 
-		if ( strpbrk( $admin_email, '@' ) === '@' . $sitename ) {
+		if ( strpbrk( $admin_email, '@' ) == '@' . $sitename ) {
 			return $admin_email;
 		}
 
@@ -198,22 +196,22 @@ function wpcf7_messages() {
 			'description'
 				=> __( "There is a field that the sender must fill in", 'contact-form-7' ),
 			'default'
-				=> __( "Please fill out this field.", 'contact-form-7' ),
+				=> __( "The field is required.", 'contact-form-7' ),
 		),
 
 		'invalid_too_long' => array(
 			'description'
 				=> __( "There is a field with input that is longer than the maximum allowed length", 'contact-form-7' ),
 			'default'
-				=> __( "This field has a too long input.", 'contact-form-7' ),
+				=> __( "The field is too long.", 'contact-form-7' ),
 		),
 
 		'invalid_too_short' => array(
 			'description'
 				=> __( "There is a field with input that is shorter than the minimum allowed length", 'contact-form-7' ),
 			'default'
-				=> __( "This field has a too short input.", 'contact-form-7' ),
-		),
+				=> __( "The field is too short.", 'contact-form-7' ),
+		)
 	);
 
 	return apply_filters( 'wpcf7_messages', $messages );
